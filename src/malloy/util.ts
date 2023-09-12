@@ -79,7 +79,8 @@ export interface RunOrCompileOptions {
 export async function runOrCompile(
   source: string,
   query: string | undefined = undefined,
-  options,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options: any,
   compileOnly = false
 ): Promise<void> {
   const extension = path.extname(source).toLowerCase();

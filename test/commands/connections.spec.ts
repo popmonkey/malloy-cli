@@ -36,7 +36,7 @@ const duckDBConfigPath = path.resolve(
   path.join(__dirname, '..', 'files', 'duckdb_config.json')
 );
 
-async function runWith(...testArgs): Promise<Command> {
+async function runWith(...testArgs: string[]): Promise<Command> {
   cli = createCLI();
 
   args = ['--quiet'];

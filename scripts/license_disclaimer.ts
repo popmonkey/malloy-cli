@@ -144,8 +144,8 @@ function doDependencies(
 
         seen[dependency] = true;
         doDependencies(nodeModulesPath, pkg);
-      } catch (error) {
-        console.warn('Could not read package.json', error.message);
+      } catch (error: unknown) {
+        console.warn('Could not read package.json', (error as Error).message);
       }
     }
   }

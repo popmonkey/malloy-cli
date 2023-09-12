@@ -50,9 +50,10 @@ export async function runMalloy(
           StandardOutputType.Tasks,
         ]
   );
-  const json = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const json: {[index: string]: any} = {};
 
-  let modelMaterializer: ModelMaterializer;
+  let modelMaterializer: ModelMaterializer | undefined;
   const fileURL = url.pathToFileURL(filePath);
 
   const malloyRuntime = new Runtime(
@@ -110,6 +111,6 @@ export async function runMalloy(
 
     return JSON.stringify(json);
   } catch (e) {
-    resultsLog.error(e);
+    resultsLog.error((e as Error).message);
   }
 }

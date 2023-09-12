@@ -36,8 +36,8 @@ import {
 
 class VirtualURIFileHandler implements URLReader {
   private uriReader: URLReader;
-  private url: URL;
-  private contents: string;
+  private url: URL | undefined;
+  private contents: string = '';
 
   constructor(uriReader: URLReader) {
     this.uriReader = uriReader;
@@ -49,7 +49,7 @@ class VirtualURIFileHandler implements URLReader {
   }
 
   async readURL(uri: URL): Promise<string> {
-    if (uri.toString() === this.url.toString()) {
+    if (this.url !== undefined && uri.toString() === this.url.toString()) {
       return this.contents;
     } else {
       const contents = await this.uriReader.readURL(uri);
@@ -62,14 +62,15 @@ export async function runMalloySQL(
   filePath: string,
   options: RunOrCompileOptions
 ): Promise<string> {
-  const contents = loadFile(filePath);
+  const contents = loadFile(filePath)!;
 
   const compileOnly = options.compileOnly;
   const statementIndex =
     options.queryOptions && options.queryOptions.type === QueryOptionsType.Index
       ? options.queryOptions.index
       : null;
-  const json = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const json: {[index: string]: any} = {};
   const resultsLog = getFilteredResultsLogger(
     options.json
       ? 'json'
@@ -128,7 +129,7 @@ export async function runMalloySQL(
       virturlURIFileHandler,
       connectionManager.getConnectionLookup(fileURL)
     );
-    let modelMaterializer: ModelMaterializer;
+    let modelMaterializer: ModelMaterializer | undefined;
 
     for (let i = 0; i < statements.length; i++) {
       const statement = statements[i];
@@ -189,7 +190,7 @@ export async function runMalloySQL(
             // nothing to do here - there isn't a query to run
           }
         } catch (e) {
-          resultsLog.error(e.message);
+          resultsLog.error((e as Error).message);
         }
       } else if (statement.type === MalloySQLStatementType.SQL) {
         for (const malloyQuery of statement.embeddedMalloyQueries) {
@@ -198,7 +199,7 @@ export async function runMalloySQL(
             resultsLog.malloy(malloyQuery.query);
 
             // TODO assumes modelMaterializer exists, because >>>malloy always happens before >>>sql with embedded malloy
-            const runnable = modelMaterializer.loadQuery(
+            const runnable = modelMaterializer!.loadQuery(
               `\nquery: ${malloyQuery.query}`
             );
             const generatedSQL = await runnable.getSQL();
@@ -208,7 +209,7 @@ export async function runMalloySQL(
               `(${generatedSQL})`
             );
           } catch (e) {
-            resultsLog.error(e.message);
+            resultsLog.error((e as Error).message);
           }
         }
 
@@ -222,7 +223,7 @@ export async function runMalloySQL(
         } else {
           try {
             const connection = await connectionLookup.lookupConnection(
-              statement.config.connection
+              statement.config!.connection
             );
 
             resultsLog.sql('Executing SQL:');
@@ -244,14 +245,14 @@ export async function runMalloySQL(
               }
             }
           } catch (e) {
-            resultsLog.error(e.message);
+            resultsLog.error((e as Error).message);
           }
         }
       }
       if (i === statementIndex) break;
     }
   } catch (e) {
-    resultsLog.error(e.message);
+    resultsLog.error((e as Error).message);
   }
 
   resultsLog.json(JSON.stringify(json, null, 2));

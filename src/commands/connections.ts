@@ -31,7 +31,7 @@ import {out} from '../log';
 import {exitWithError} from '../util';
 
 function connectionConfigFromName(name: string): ConnectionConfig {
-  return config.connections.find(connection => connection.name === name);
+  return config.connections.find(connection => connection.name === name)!;
 }
 
 export function createBigQueryConnectionCommand(name: string): void {
@@ -77,8 +77,8 @@ export async function testConnectionCommand(name: string): Promise<void> {
   try {
     await connection.test();
     out('Connection test successful');
-  } catch (e) {
-    exitWithError(`Connection test unsuccessful: ${e.message}`);
+  } catch (e: unknown) {
+    exitWithError(`Connection test unsuccessful: ${(e as Error).message}`);
   }
 }
 

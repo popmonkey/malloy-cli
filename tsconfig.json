@@ -8,6 +8,7 @@
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "lib": ["es2020"]
+    "lib": ["es2020"],
+    "strict": true
   }
 }

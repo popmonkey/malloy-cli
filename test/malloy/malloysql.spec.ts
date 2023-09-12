@@ -37,7 +37,8 @@ const complex1 = path.join(
 
 describe('MalloySQL', () => {
   beforeAll(() => {
-    const cli = createCLI();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cli: {[index: string]: any} = createCLI();
     // call 'preAction' hooks
     // so that things like logger, connectionManager are created
     const preAction: [Function] = cli['_lifeCycleHooks']['preAction'];

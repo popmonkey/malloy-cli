@@ -37,7 +37,7 @@ beforeEach(() => {
   args = ['--quiet', '--config', configPath];
 });
 
-async function runWith(...testArgs): Promise<Command> {
+async function runWith(...testArgs: string[]): Promise<Command> {
   return cli.parseAsync([...args, ...testArgs], {from: 'user'});
 }
 

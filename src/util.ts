@@ -49,18 +49,18 @@ export function createDirectoryOrError(path: string, message?: string): void {
     } catch (e) {
       exitWithError(
         message
-          ? `${message}\n${e.message}`
+          ? `${message}\n${(e as Error).message}`
           : `Failed to create directory at ${path}`
       );
     }
   }
 }
 
-export function fileExists(filePath): boolean {
+export function fileExists(filePath: string): boolean {
   return fs.existsSync(filePath);
 }
 
-export function loadFile(filePath): string {
+export function loadFile(filePath: string): string | undefined {
   const absolutePath = path.isAbsolute(filePath)
     ? filePath
     : path.resolve(directory, filePath);
@@ -79,7 +79,7 @@ export function loadFile(filePath): string {
   try {
     return fs.readFileSync(absolutePath, 'utf8').toString();
   } catch (e) {
-    exitWithError(e.message);
+    exitWithError((e as Error).message);
   }
 }
 
@@ -90,10 +90,10 @@ export const convertToBytes = (bytes: string): string => {
   const match = BYTE_MATCH.exec(bytes);
   if (match?.groups ? match.groups['suffix'] : false) {
     const value =
-      +match.groups['bytes'] *
+      +match!.groups!['bytes'] *
       Math.pow(
         1024,
-        BYTE_SUFFIXES.indexOf(match.groups['suffix'].toLowerCase()) + 1
+        BYTE_SUFFIXES.indexOf(match!.groups!['suffix'].toLowerCase()) + 1
       );
     return `${value}`;
   }

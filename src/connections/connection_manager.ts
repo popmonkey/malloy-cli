@@ -75,8 +75,10 @@ const createDuckDbConnection = async (
       () => ({rowLimit})
     );
     return connection;
-  } catch (error) {
-    exitWithError(`Could not create DuckDB connection: ${error.message}`);
+  } catch (error: unknown) {
+    exitWithError(
+      `Could not create DuckDB connection: ${(error as Error).message}`
+    );
   }
 };
 
@@ -85,7 +87,7 @@ const createPostgresConnection = async (
   {rowLimit}: ConfigOptions
 ): Promise<PostgresConnection> => {
   const configReader = async () => {
-    let password: string;
+    let password = '';
     if (connectionConfig.password !== undefined) {
       password = connectionConfig.password;
     } /* TODO else if (connectionConfig.useKeychainPassword) {
@@ -127,7 +129,7 @@ export class CLIConnectionFactory {
       workingDirectory: '/',
     }
   ): Promise<TestableConnection> {
-    let connection: TestableConnection;
+    let connection: TestableConnection | undefined;
 
     switch (connectionConfig.backend) {
       case ConnectionBackend.BigQuery:
@@ -152,7 +154,7 @@ export class CLIConnectionFactory {
       }
     }
 
-    return connection;
+    return connection!;
   }
 
   getWorkingDirectory(url: URL): string {

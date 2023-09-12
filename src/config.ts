@@ -38,7 +38,7 @@ export interface Config {
 }
 
 function getDefaultOSConfigFolderPath(): string {
-  let location;
+  let location: string | undefined;
 
   // TODO look more at XDG spec
   // TODO $XDG_CONFIG_DIRS
@@ -53,16 +53,16 @@ function getDefaultOSConfigFolderPath(): string {
     }
   }
 
-  if (!location)
+  if (location === undefined)
     exitWithError(
       'Could not find a default place for configuration to be stored'
     );
 
-  return location;
+  return location!;
 }
 
 let config: Config;
-let configFilePath;
+let configFilePath: string;
 export function loadConfig(filePath?: string) {
   if (filePath) {
     if (process.env['MALLOY_CLI_CONFIG']) {
@@ -74,14 +74,16 @@ export function loadConfig(filePath?: string) {
     }
 
     configFilePath = filePath;
-    const configText = loadFile(filePath);
+    const configText = loadFile(filePath)!;
 
     try {
       config = JSON.parse(configText) as Config; // TODO json type
       if (!config.connections) config.connections = [];
       logger.debug(`Configuration loaded from ${filePath}`);
     } catch (e) {
-      exitWithError(`Error parsing config file at ${filePath}: ${e.message}`);
+      exitWithError(
+        `Error parsing config file at ${filePath}: ${(e as Error).message}`
+      );
     }
   } else {
     // if config file is not passed, look in default location
@@ -91,14 +93,16 @@ export function loadConfig(filePath?: string) {
     configFilePath = path.join(folder, 'malloy', 'config.json');
 
     if (fileExists(configFilePath)) {
-      const configText = loadFile(configFilePath);
+      const configText = loadFile(configFilePath)!;
       try {
         config = JSON.parse(configText) as Config; // TODO json type
         if (!config.connections) config.connections = [];
         logger.debug(`Configuration loaded from ${configFilePath}`);
       } catch (e) {
         exitWithError(
-          `Error parsing config file at ${configFilePath}: ${e.message}`
+          `Error parsing config file at ${configFilePath}: ${
+            (e as Error).message
+          }`
         );
       }
     } else {
@@ -124,7 +128,9 @@ export function saveConfig(): void {
     fs.writeFileSync(configFilePath, JSON.stringify(config));
   } catch (e) {
     exitWithError(
-      `Could not write configuration information to ${configFilePath}: ${e.message}`
+      `Could not write configuration information to ${configFilePath}: ${
+        (e as Error).message
+      }`
     );
   }
 }

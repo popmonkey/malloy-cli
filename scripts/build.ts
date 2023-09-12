@@ -144,7 +144,7 @@ export async function doWatch(development = false): Promise<void> {
 
   const watchRebuildLogPlugin = {
     name: 'watchRebuildLogPlugin',
-    setup(build) {
+    setup(build: esbuild.PluginBuild) {
       build.onStart(() => {
         console.log('building');
       });
@@ -152,6 +152,10 @@ export async function doWatch(development = false): Promise<void> {
   };
 
   const config = commonCLIConfig(development);
+  if (config === undefined || config.plugins === undefined) {
+    throw new Error('Invalid config');
+  }
+
   config.plugins.push(watchRebuildLogPlugin);
   const ctx = await esbuild.context({
     ...config,

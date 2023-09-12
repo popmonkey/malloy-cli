@@ -59,8 +59,6 @@ if (fs.existsSync(outputFile)) throw new Error('Output file exists already');
 axios.defaults.timeout = 500000;
 axios.defaults.httpsAgent = new https.Agent({keepAlive: true});
 
-const malloyPackages = ['@malloydata/malloy-cli'];
-
 // licenses that we would need to mirror source for, if we included (we don't today)
 const sourceMirrorLicenses = [
   'CDDL-1.0',
@@ -151,10 +149,10 @@ const getLicenses = async () => {
   const dependencies = dependenciesInPackage
     .map(dep => dependenciesForPackage(dep))
     .flat()
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => a!.name!.localeCompare(b!.name!));
 
   for (const dependency of dependencies) {
-    const name = dependency.name;
+    const name = dependency.name!;
     const row: Partial<OutputRow> = dependency;
     const url = dependency.url;
 
